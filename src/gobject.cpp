@@ -1,37 +1,40 @@
 #include "gobject.h"
 
-GObject::GObject(float x, float y,float speed):
+GObject::GObject(float x, float y,float speed, bool collider):
 animIndex(0),
 speed(speed),
 moving(false),
 pos(x,y),
 dir(0,0),
 anim(),
-current()
+current(),
+collider(collider)
 {
 
 }
 
-GObject::GObject(std::vector<Sprite> anim, float x, float y,float speed):
+GObject::GObject(std::vector<Sprite> anim, float x, float y,float speed, bool collider):
 animIndex(0),
 speed(speed),
 moving(false),
 pos(x,y),
 dir(0,0),
-anim(anim)
+anim(anim),
+collider(collider)
 {
     current = anim[animIndex];
     current.setPosition(x,y);
     current.setOrigin( current.getTextureRect().width / 2, current.getTextureRect().height / 2 );
 }
 
-GObject::GObject(std::vector<Sprite> anim, float x, float y, float xDir, float yDir,float speed):
+GObject::GObject(std::vector<Sprite> anim, float x, float y, float xDir, float yDir,float speed, bool collider):
 animIndex(0),
 speed(speed),
 moving(false),
 pos(x,y),
 dir(xDir,yDir),
-anim(anim)
+anim(anim),
+collider(collider)
 {
     current = anim[animIndex];
     current.setPosition(x,y);

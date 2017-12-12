@@ -1,3 +1,6 @@
+#ifndef PLAYER
+#define PLAYER
+
 #include "gobject.h"
 #include <SFML/Graphics.hpp>
 
@@ -16,3 +19,4 @@ private:
     void keyReleased(Event * e);
 
 };
+#endif
