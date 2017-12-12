@@ -25,6 +25,7 @@ public:
     bool isMoving(){return moving;}
     void setPos(float x, float y);
     void setDir(float x, float y);
+    int numberOfSprites(){return anim.size();}
 
     void moveForward();
     void setSpriteNext();

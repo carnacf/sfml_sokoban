@@ -15,5 +15,4 @@ private:
     void keyPressed(Event * e);
     void keyReleased(Event * e);
 
-
 };

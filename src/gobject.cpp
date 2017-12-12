@@ -1,20 +1,24 @@
 #include "gobject.h"
 
 GObject::GObject(float x, float y,float speed):
-current(),
-anim(),
 animIndex(0),
 speed(speed),
-pos(x,y)
+moving(false),
+pos(x,y),
+dir(0,0),
+anim(),
+current()
 {
 
 }
 
 GObject::GObject(std::vector<Sprite> anim, float x, float y,float speed):
-anim(anim),
 animIndex(0),
 speed(speed),
-pos(x,y)
+moving(false),
+pos(x,y),
+dir(0,0),
+anim(anim)
 {
     current = anim[animIndex];
     current.setPosition(x,y);
@@ -22,11 +26,12 @@ pos(x,y)
 }
 
 GObject::GObject(std::vector<Sprite> anim, float x, float y, float xDir, float yDir,float speed):
-anim(anim),
 animIndex(0),
 speed(speed),
+moving(false),
 pos(x,y),
-dir(xDir,yDir)
+dir(xDir,yDir),
+anim(anim)
 {
     current = anim[animIndex];
     current.setPosition(x,y);
