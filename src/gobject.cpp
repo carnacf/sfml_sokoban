@@ -56,12 +56,14 @@ void GObject::setDir(float x, float y)
 
 void GObject::moveForward()
 {
-    moving = true;
-    setSpriteNext();
-    if(animIndex == 0) moving = false;
-    if(moving){
-        pos = pos + (dir*((float)current.getTextureRect().width)/(float)anim.size());
+    if(animIndex == 0){
+        moving = true;
+    }else if(animIndex == anim.size()-1){
+        moving = false;
     }
+    pos = pos + (dir*((float)current.getTextureRect().width)/(float)anim.size());
+    setSpriteNext();
+    //Rotate
     current.setOrigin( current.getTextureRect().width / 2, current.getTextureRect().height / 2 );
     float angle = dir.x*90;
     if(dir.y == 1){
