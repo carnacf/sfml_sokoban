@@ -1,4 +1,10 @@
 #include "gobject.h"
+#include "go_manager.h"
+
+GObject::GObject():anim()
+{
+
+}
 
 GObject::GObject(float x, float y,float speed, bool collider):
 animIndex(0),
@@ -8,7 +14,8 @@ pos(x,y),
 dir(0,0),
 anim(),
 current(),
-collider(collider)
+collider(collider),
+movable(false)
 {
 
 }
@@ -20,7 +27,8 @@ moving(false),
 pos(x,y),
 dir(0,0),
 anim(anim),
-collider(collider)
+collider(collider),
+movable(false)
 {
     current = anim[animIndex];
     current.setPosition(x,y);
@@ -34,7 +42,8 @@ moving(false),
 pos(x,y),
 dir(xDir,yDir),
 anim(anim),
-collider(collider)
+collider(collider),
+movable(false)
 {
     current = anim[animIndex];
     current.setPosition(x,y);
@@ -52,15 +61,24 @@ void GObject::setDir(float x, float y)
 {
     dir.x = x;
     dir.y = y;
+    current.setOrigin( current.getTextureRect().width / 2, current.getTextureRect().height / 2 );
+    float angle = dir.x*90;
+    if(dir.y == 1){
+        angle+=180;
+    }
+    current.setRotation(angle);
+
 }
 
 void GObject::moveForward()
 {
+   
     if(animIndex == 0){
         moving = true;
     }else if(animIndex == anim.size()-1){
         moving = false;
     }
+
     pos = pos + (dir*((float)current.getTextureRect().width)/(float)anim.size());
     setSpriteNext();
     //Rotate
@@ -70,6 +88,7 @@ void GObject::moveForward()
         angle+=180;
     }
     current.setRotation(angle);
+
 }
 
 void GObject::setSpriteNext()

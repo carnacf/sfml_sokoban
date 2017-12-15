@@ -96,10 +96,14 @@ int main()
 				player.setPos(x*40+20,y*40+20);
 				break;
 			case '0'/*Caisse*/:
-				v.push_back(Sprite(caisse));
-				v.push_back(Sprite(done_caisse));
-				manager.addGameObject(GObject(v,x*40+20,y*40+20,0,true));
-				break;
+				{
+					v.push_back(Sprite(caisse));
+					v.push_back(Sprite(done_caisse));
+					GObject ca(v,x*40+20,y*40+20,0,true);
+					ca.setMovable(true);
+					manager.addGameObject(ca);
+					break;
+				}
 			case '^'/*Goal*/:
 				v.push_back(Sprite(goal));
 				manager.addGameObject(GObject(v,x*40+20,y*40+20,0,false));
@@ -125,13 +129,18 @@ int main()
 
 		Event e;
 		if(manager.getPlayer()->isMoving() && timer>(animTime/manager.getPlayer()->numberOfSprites())){
-			manager.getPlayer()->moveForward();
+			
+			manager.moveForward();
 			timer = 0;
 		}
 		while (window.pollEvent(e))
 		{
 			if(!manager.getPlayer()->isMoving()){
 				manager.getPlayer()->event(&e);
+				if(!(manager.getPlayer()->getDir().x == 0 && manager.getPlayer()->getDir().y == 0))
+				{
+					manager.moveForward();
+				}
 			}
 			if (e.type == Event::Closed)
 				window.close();

@@ -32,6 +32,12 @@ public:
 
     void drawAll(RenderWindow * window);
 
+    void moveForward();
+
+    GObject * findGOWithPos(Vector2f v);
+
+    float dist(Vector2f a, Vector2f b);
+
 };
 
 #endif
