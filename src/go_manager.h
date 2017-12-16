@@ -11,6 +11,7 @@ class GO_Manager
 private:
 
     std::vector<GObject> objects_scene;
+    std::vector<GObject> movable;
     Player * player;
 
 public:

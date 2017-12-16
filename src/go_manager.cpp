@@ -3,7 +3,15 @@
 
 void GO_Manager::addGameObject(GObject g)
 {
-    objects_scene.push_back(g);
+    if(!g.isMovable())
+    {
+        objects_scene.push_back(g);
+    }
+    else
+    {
+        movable.push_back(g);
+    }
+
 }
 
 void GO_Manager::removeGameObject(int i)
@@ -39,6 +47,10 @@ void GO_Manager::drawAll(RenderWindow * window)
     {
         window->draw(o.getSprite());
     }
+    for(GObject o : movable)
+    {
+        window->draw(o.getSprite());
+    }
     window->draw(player->getSprite());
 }
 
@@ -71,7 +83,7 @@ void GO_Manager::moveForward()
                 if(distan >= 30)
                 {
                     coll->setPos(v1.x, v1.y);
-                    player->moveForward(); 
+                    player->moveForward();
                 }
             }
         }
@@ -96,6 +108,17 @@ GObject * GO_Manager::findGOWithPos(Vector2f v)
             {
                 distance = dist(objects_scene[i].getPos(),v);
                 nearest = &objects_scene[i];
+            }
+        }
+    }
+    for(int i = 0; i<movable.size();i++)
+    {
+        if(movable[i].isCollider())
+        {
+            if(dist(movable[i].getPos(),v) < distance)
+            {
+                distance = dist(movable[i].getPos(),v);
+                nearest = &movable[i];
             }
         }
     }
