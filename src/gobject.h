@@ -18,12 +18,13 @@ private:
     Sprite current;
     bool collider;
     bool movable;
+    bool victory;
 
 public:
     GObject();
-    GObject(float x, float y,float speed, bool collider);
-    GObject(std::vector<Sprite> anim, float x, float y,float speed, bool collider);
-    GObject(std::vector<Sprite> anim, float x, float y,float dirX,float dirY,float speed, bool collider);
+    GObject(float x, float y,float speed, bool collider = false,bool movable = false, bool goal = false);
+    GObject(std::vector<Sprite> anim, float x, float y,float speed, bool collider = false,bool movable = false ,bool goal = false);
+    GObject(std::vector<Sprite> anim, float x, float y,float dirX,float dirY,float speed, bool collider = false, bool movable = false,bool goal = false);
 
     ~GObject(){}
 
@@ -40,6 +41,9 @@ public:
 
     bool isMovable(){return movable;}
     void setMovable(bool t){movable = t;}
+
+    bool isVictory(){return victory;}
+    void setVictory(bool t){victory = t;}
 
     void moveForward();
 

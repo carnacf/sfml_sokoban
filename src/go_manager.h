@@ -12,6 +12,8 @@ private:
 
     std::vector<GObject> objects_scene;
     std::vector<GObject> movable;
+    std::vector<GObject> goals;
+
     Player * player;
 
 public:
@@ -31,6 +33,8 @@ public:
 
     std::vector<GObject> checkCollide(GObject g);
 
+    std::vector<GObject> checkCollideVictory(GObject g);
+
     void drawAll(RenderWindow * window);
 
     void moveForward();
@@ -38,6 +42,12 @@ public:
     GObject * findGOWithPos(Vector2f v);
 
     float dist(Vector2f a, Vector2f b);
+
+    void clearAll();
+
+    void victoryUpdate();
+
+    bool victoryGlobal();
 
 };
 

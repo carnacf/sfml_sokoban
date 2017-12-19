@@ -34,6 +34,44 @@ Table<char> trySokoban(RandomGen& randomGen, Vec2 levelSize, int numTries,
     cout << "Unable to generate a level with these parameters" << endl;
 }
 
+void loadLevel(Table<char> & level, GO_Manager & manager, Texture & floor_text,
+				Texture & wall_text, Texture & caisse, Texture & done_caisse, Texture & goal)
+{
+
+
+	for (int y : level.getBounds().getYRange()) {
+	  for (int x : level.getBounds().getXRange()){
+		  std::vector<Sprite> v;
+		  switch (level[Vec2(x,y)]) {
+		  	case '#'/*Wall*/:
+				v.push_back(Sprite(wall_text));
+				manager.addGameObject(GObject(v,x*40+20,y*40+20,0,true));
+				break;
+			case '@'/*Player*/:
+				manager.getPlayer()->setPos(x*40+20,y*40+20);
+				break;
+			case '0'/*Caisse*/:
+				{
+					v.push_back(Sprite(caisse));
+					v.push_back(Sprite(done_caisse));
+					manager.addGameObject(GObject(v,x*40+20,y*40+20,0,true,true));
+					break;
+				}
+			case '^'/*Goal*/:
+				{
+					v.push_back(Sprite(goal));
+					manager.addGameObject(GObject(v,x*40+20,y*40+20,0,false,false,true));
+				}
+				break;
+			default:
+				break;
+
+		  }
+	  }
+	}
+
+}
+
 int main()
 {
 	//Generate level
@@ -65,6 +103,22 @@ int main()
 
 	//Manager
 	GO_Manager manager(&player);
+	Font MyFont;
+
+	// Chargement à partir d'un fichier sur le disque
+	if (!MyFont.loadFromFile("images/ka1.ttf"))
+	{
+	    printf("font not loaded\n");
+	}
+
+	Text _text;
+	_text.setFont(MyFont);
+	_text.setString("Victory !\n press R to restart\npress N to generate a new level");
+	_text.setCharacterSize(24);
+	_text.setColor(Color::Black);
+	FloatRect rect = _text.getLocalBounds();
+	_text.setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
+	_text.setPosition(Vector2f(window.getSize().x/2.0f, window.getSize().y/2.0f));
 
 	//Floor
 	Texture floor_text;
@@ -84,36 +138,8 @@ int main()
 	Texture goal;
 	goal.loadFromFile("images/goal.png");
 
-	for (int y : level.getBounds().getYRange()) {
-	  for (int x : level.getBounds().getXRange()){
-		  std::vector<Sprite> v;
-		  switch (level[Vec2(x,y)]) {
-		  	case '#'/*Wall*/:
-				v.push_back(Sprite(wall_text));
-				manager.addGameObject(GObject(v,x*40+20,y*40+20,0,true));
-				break;
-			case '@'/*Player*/:
-				player.setPos(x*40+20,y*40+20);
-				break;
-			case '0'/*Caisse*/:
-				{
-					v.push_back(Sprite(caisse));
-					v.push_back(Sprite(done_caisse));
-					GObject ca(v,x*40+20,y*40+20,0,true);
-					ca.setMovable(true);
-					manager.addGameObject(ca);
-					break;
-				}
-			case '^'/*Goal*/:
-				v.push_back(Sprite(goal));
-				manager.addGameObject(GObject(v,x*40+20,y*40+20,0,false));
-				break;
-			default:
-				break;
 
-		  }
-	  }
-	}
+	loadLevel(level, manager, floor_text, wall_text, caisse, done_caisse, goal);
 
 	//Clock
 	Clock clock;
@@ -135,6 +161,18 @@ int main()
 		}
 		while (window.pollEvent(e))
 		{
+
+			if(e.key.code == Keyboard::R)
+			{
+				manager.clearAll();
+				loadLevel(level, manager, floor_text, wall_text, caisse, done_caisse, goal);
+			}
+			if(e.key.code == Keyboard::N)
+			{
+				manager.clearAll();
+    			level = trySokoban(randomGen, levelSize, tries, boulders, moves, rooms, doors);
+    			loadLevel(level, manager, floor_text, wall_text, caisse, done_caisse, goal);
+			}
 			if(!manager.getPlayer()->isMoving()){
 				manager.getPlayer()->event(&e);
 				if(!(manager.getPlayer()->getDir().x == 0 && manager.getPlayer()->getDir().y == 0))
@@ -142,14 +180,20 @@ int main()
 					manager.moveForward();
 				}
 			}
+
 			if (e.type == Event::Closed)
 				window.close();
 		}
 
 		//Drawing part
 		window.clear();
+    	manager.victoryUpdate();
 		window.draw(floor_sprite);
 		manager.drawAll(&window);
+    	if(manager.victoryGlobal())
+    	{
+			window.draw(_text);
+    	}
 
 		window.display();
 	}

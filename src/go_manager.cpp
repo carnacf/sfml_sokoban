@@ -3,13 +3,17 @@
 
 void GO_Manager::addGameObject(GObject g)
 {
-    if(!g.isMovable())
+    if(g.isMovable())
     {
-        objects_scene.push_back(g);
+        movable.push_back(g);
+    }
+    else if(g.isVictory())
+    {
+        goals.push_back(g);
     }
     else
     {
-        movable.push_back(g);
+        objects_scene.push_back(g);
     }
 
 }
@@ -41,9 +45,27 @@ std::vector<GObject> GO_Manager::checkCollide(GObject g)
 
 }
 
+
+std::vector<GObject> GO_Manager::checkCollideVictory(GObject g)
+{
+    std::vector<GObject> colliders;
+    for(GObject o : goals)
+    {
+        if(testCollide(g,o))
+        {
+            colliders.push_back(o);
+        }
+    }
+    return colliders;
+}
+
 void GO_Manager::drawAll(RenderWindow * window)
 {
     for(GObject o : objects_scene)
+    {
+        window->draw(o.getSprite());
+    }
+    for(GObject o : goals)
     {
         window->draw(o.getSprite());
     }
@@ -128,4 +150,41 @@ GObject * GO_Manager::findGOWithPos(Vector2f v)
 float GO_Manager::dist(Vector2f a, Vector2f b)
 {
     return sqrt(pow(a.x-b.x,2)+pow(a.y-b.y,2));
+}
+
+void GO_Manager::clearAll()
+{
+    objects_scene.clear();
+    movable.clear();
+    goals.clear();
+}
+
+
+void GO_Manager::victoryUpdate()
+{
+    for(int i = 0; i<movable.size();i++)
+    {
+        std::vector<GObject> v = checkCollideVictory(movable[i]);
+        if(!v.empty() && movable[i].getIndex() != 1)
+        {
+            movable[i].setSpriteNext();
+        }else if(v.empty() && movable[i].getIndex() == 1)
+        {
+            movable[i].setSpriteNext();
+        }
+    }
+}
+
+bool GO_Manager::victoryGlobal()
+{
+    bool victoire = true;
+    for(int i = 0; i<movable.size();i++)
+    { 
+        if(movable[i].getIndex() == 0)
+        {
+            victoire = false;
+            break;
+        }
+    } 
+    return victoire;
 }
