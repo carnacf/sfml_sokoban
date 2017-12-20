@@ -64,13 +64,15 @@ void GObject::setDir(float x, float y)
 {
     dir.x = x;
     dir.y = y;
-    current.setOrigin( current.getTextureRect().width / 2, current.getTextureRect().height / 2 );
-    float angle = dir.x*90;
-    if(dir.y == 1){
-        angle+=180;
+    if(!(x==0&&y==0))
+    {
+        current.setOrigin( current.getTextureRect().width / 2, current.getTextureRect().height / 2 );
+        float angle = dir.x*90;
+        if(dir.y == 1){
+            angle+=180;
+        }
+        current.setRotation(angle);
     }
-    current.setRotation(angle);
-
 }
 
 void GObject::moveForward()
@@ -78,7 +80,7 @@ void GObject::moveForward()
    
     if(animIndex == 0){
         moving = true;
-    }else if(animIndex == anim.size()-1){
+    }else if(animIndex == (int)anim.size()-1){
         moving = false;
     }
 

@@ -9,14 +9,6 @@
 
 using namespace sf;
 
-void printLevel(const Table<char>& level) {
-  for (int y : level.getBounds().getYRange()) {
-    for (int x : level.getBounds().getXRange())
-      cout << level[Vec2(x, y)];
-    cout << '\n';
-  }
-}
-
 Table<char> trySokoban(RandomGen& randomGen, Vec2 levelSize, int numTries,
                 int numBoulders, int numMoves, int rooms, int doors) {
   int maxDepth = -1;
@@ -31,7 +23,8 @@ Table<char> trySokoban(RandomGen& randomGen, Vec2 levelSize, int numTries,
     }
   }
   if (maxDepth == -1)
-    cout << "Unable to generate a level with these parameters" << endl;
+  	cout << "Unable to generate a level with these parameters" << endl;
+  return Table<char>(0,0);
 }
 
 void loadLevel(Table<char> & level, GO_Manager & manager, Texture & floor_text,
@@ -80,7 +73,7 @@ int main()
     int boulders = 4;
     int moves = 20;
     int rooms = 3;
-    int doors = 1;
+    int doors = 0;
     int cpt = 0;
     RandomGen randomGen;
     randomGen.init(time(0));
@@ -89,6 +82,7 @@ int main()
 
 	RenderWindow window(VideoMode(20*40, 20*40), "Best Sokoban Ever !");
 	window.setFramerateLimit(60);
+	window.setKeyRepeatEnabled(false);
 
 	//Player
     Texture player_text;
@@ -107,19 +101,16 @@ int main()
 	Font MyFont;
 
 	// Chargement à partir d'un fichier sur le disque
-	if (!MyFont.loadFromFile("images/ka1.ttf"))
+	if (!MyFont.loadFromFile("images/azertyperegular.ttf"))
 	{
 	    printf("font not loaded\n");
 	}
 
 	Text _text, _time_txt, _cpt_txt;
 	_text.setFont(MyFont);_time_txt.setFont(MyFont);_cpt_txt.setFont(MyFont);
-	_text.setCharacterSize(24);_time_txt.setCharacterSize(24);_cpt_txt.setCharacterSize(24);
+	_text.setCharacterSize(34);_time_txt.setCharacterSize(34);_cpt_txt.setCharacterSize(34);
 	_text.setColor(Color::Black);_time_txt.setColor(Color::Black);_cpt_txt.setColor(Color::Black);
 
-	_cpt_txt.setString(std::to_string(cpt) +" plays ");
-	FloatRect rect_cpt = _cpt_txt.getLocalBounds();
-	_cpt_txt.setPosition(Vector2f(window.getSize().x - rect_cpt.width, 0));
 
 	//Floor
 	Texture floor_text;
@@ -148,7 +139,7 @@ int main()
 	int seconds;
 	int minuts;
 	float globalTimer = 0;
-	float animTime = 0.5;
+	float animTime = 0.25;
 
     while (window.isOpen())
     {
@@ -157,37 +148,62 @@ int main()
 		clock.restart();
 		timer+=time;
 		globalTimer+=time;
-		seconds = (int)globalTimer%60;
-		minuts = floor(globalTimer / 60);
+		if(!manager.victoryGlobal())
+		{
+			seconds = (int)globalTimer%60;
+			minuts = floor(globalTimer / 60);
+		}
 		Event e;
 		if(manager.getPlayer()->isMoving() && timer>(animTime/manager.getPlayer()->numberOfSprites())){
 			
 			manager.moveForward();
 			timer = 0;
 		}
+		else{
+
+		}
 		while (window.pollEvent(e))
 		{
-
-			if(e.key.code == Keyboard::R)
+			if(e.type == sf::Event::KeyPressed)
 			{
-				manager.clearAll();
-				loadLevel(level, manager, floor_text, wall_text, caisse, done_caisse, goal);
-			}
-			if(e.key.code == Keyboard::N)
-			{
-				manager.clearAll();
-    			level = trySokoban(randomGen, levelSize, tries, boulders, moves, rooms, doors);
-    			loadLevel(level, manager, floor_text, wall_text, caisse, done_caisse, goal);
-			}
-			if(!manager.getPlayer()->isMoving()){
-				manager.getPlayer()->event(&e);
-				if(!(manager.getPlayer()->getDir().x == 0 && manager.getPlayer()->getDir().y == 0))
+				switch(e.key.code)
 				{
-					manager.moveForward();
-					cpt++;
+					case Keyboard::R:
+						manager.clearAll();
+						loadLevel(level, manager, floor_text, wall_text, caisse, done_caisse, goal);
+						cpt = 0;
+						globalTimer = 0;
+						break;
+					case Keyboard::N:
+					{
+						manager.clearAll();
+		    			level = trySokoban(randomGen, levelSize, tries, boulders, moves, rooms, doors);
+		    			loadLevel(level, manager, floor_text, wall_text, caisse, done_caisse, goal);
+						cpt = 0;
+						globalTimer = 0;
+		    			break;
+					}
+					case Keyboard::Z:
+						manager.depiler();
+						if(cpt!=0)
+							cpt--;
+						break;
+					default:
+						break;
+				}
+				if(!manager.getPlayer()->isMoving()){
+					manager.getPlayer()->event(&e);
+					if(!(manager.getPlayer()->getDir().x == 0 && manager.getPlayer()->getDir().y == 0))
+					{
+						manager.empiler();
+						if(manager.moveForward())
+						{
+							cpt++;
+						}
+					}
 				}
 			}
-
+			
 			if (e.type == Event::Closed)
 				window.close();
 		}
@@ -197,9 +213,11 @@ int main()
     	manager.victoryUpdate();
 		window.draw(floor_sprite);
 		manager.drawAll(&window);
-		_time_txt.setString(std::to_string(minuts) +" : "+ std::to_string(seconds));
+		_time_txt.setString(" Time : " + std::to_string(minuts) +" : "+ std::to_string(seconds));
 		window.draw(_time_txt);
-		_cpt_txt.setString(std::to_string(cpt) +" plays ");
+		_cpt_txt.setString(" Moves : " + std::to_string(cpt) + "  ");
+		FloatRect rect_cpt = _cpt_txt.getLocalBounds();
+		_cpt_txt.setPosition(Vector2f(window.getSize().x - rect_cpt.width, 0));
 		window.draw(_cpt_txt);
     	if(manager.victoryGlobal())
     	{

@@ -82,13 +82,13 @@ SokobanMaker&SokobanMaker::setNumDoors(int d) {
   return *this;
 }
 
-static void printLevel(const Table<char>& level) {
+/*static void printLevel(const Table<char>& level) {
   for (int y : level.getBounds().getYRange()) {
     for (int x : level.getBounds().getXRange())
       cout << level[Vec2(x, y)];
     cout << '\n';
   }
-}
+}*/
 
 bool SokobanMaker::make() {
   Rectangle area(level.getBounds());
@@ -156,7 +156,7 @@ void SokobanMaker::moveBoulder(int depth, Vec2& curPos, set<int>& visited) {
     maxDepth = depth;
     finalPos = curPos;
   }
-  if (visited.size() > numNodes)
+  if ((int)visited.size() > numNodes)
     return;
   BfSearch bfSearch(distanceTable, workArea, curPos, [&](Vec2 pos) { return isFree(pos);}, Vec2::directions4());
   for (Vec2 boulderPos : random.permutation(boulders)) {

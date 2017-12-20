@@ -3,6 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 #include "player.h"
+#include <stack>
+#include <iostream>
 
 using namespace sf;
 
@@ -13,6 +15,8 @@ private:
     std::vector<GObject> objects_scene;
     std::vector<GObject> movable;
     std::vector<GObject> goals;
+    std::stack<std::vector<GObject>> histo_movable;
+    std::stack<Vector2f> histo_player;
 
     Player * player;
 
@@ -37,7 +41,7 @@ public:
 
     void drawAll(RenderWindow * window);
 
-    void moveForward();
+    bool moveForward();
 
     GObject * findGOWithPos(Vector2f v);
 
@@ -48,6 +52,10 @@ public:
     void victoryUpdate();
 
     bool victoryGlobal();
+
+    void empiler();
+
+    void depiler();
 
 };
 

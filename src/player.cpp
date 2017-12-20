@@ -16,6 +16,7 @@ void Player::event(Event * e)
 
 void Player::keyPressed(Event * e)
 {
+
     switch (e->key.code) {
         case sf::Keyboard::Left:
             setDir(-1,0);

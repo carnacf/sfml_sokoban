@@ -76,20 +76,22 @@ void GO_Manager::drawAll(RenderWindow * window)
     window->draw(player->getSprite());
 }
 
-void GO_Manager::moveForward()
+bool GO_Manager::moveForward()
 {
+    bool t = false;
     if(!player->isMoving())
     {
-        float x = player->getPos().x + player->getDir().x*40;
-        float y = player->getPos().y + player->getDir().y*40;
+        float x = player->getPos().x + player->getDir().x*player->getSprite().getTextureRect().width;
+        float y = player->getPos().y + player->getDir().y*player->getSprite().getTextureRect().width;
         Vector2f v(x,y);
 
         GObject * coll = findGOWithPos(v);
         float distance = dist(coll->getPos(),v);
 
-        if(distance >= 30)
+        if(distance >= player->getSprite().getTextureRect().width-10)
         {
             player->moveForward();
+            t = true;
         }
         else
         {
@@ -97,15 +99,16 @@ void GO_Manager::moveForward()
             {
 
                 coll->setDir(player->getDir().x, player->getDir().y);
-                float x1 = coll->getPos().x + coll->getDir().x*40;
-                float y1 = coll->getPos().y + coll->getDir().y*40;
+                float x1 = coll->getPos().x + coll->getDir().x*player->getSprite().getTextureRect().width;
+                float y1 = coll->getPos().y + coll->getDir().y*player->getSprite().getTextureRect().width;
                 Vector2f v1(x1,y1);
                 GObject * colcol = findGOWithPos(v1);
                 float distan = dist(colcol->getPos(),v1);
-                if(distan >= 30)
+                if(distan >= player->getSprite().getTextureRect().width-10)
                 {
                     coll->setPos(v1.x, v1.y);
                     player->moveForward();
+                    t = true;
                 }
             }
         }
@@ -113,7 +116,9 @@ void GO_Manager::moveForward()
     else
     {
         player->moveForward();
+        t = true;
     }
+    return t;
 
 }
 
@@ -121,8 +126,8 @@ void GO_Manager::moveForward()
 GObject * GO_Manager::findGOWithPos(Vector2f v)
 {
     float distance = std::numeric_limits<float>::max();
-    GObject * nearest;
-    for(int i = 0; i<objects_scene.size();i++)
+    GObject * nearest = nullptr;
+    for(size_t i = 0; i<objects_scene.size();i++)
     {
         if(objects_scene[i].isCollider())
         {
@@ -133,7 +138,7 @@ GObject * GO_Manager::findGOWithPos(Vector2f v)
             }
         }
     }
-    for(int i = 0; i<movable.size();i++)
+    for(size_t i = 0; i<movable.size();i++)
     {
         if(movable[i].isCollider())
         {
@@ -157,12 +162,17 @@ void GO_Manager::clearAll()
     objects_scene.clear();
     movable.clear();
     goals.clear();
+    while(!histo_movable.empty())
+        histo_movable.pop();
+    while(!histo_player.empty())
+        histo_player.pop();
+    
 }
 
 
 void GO_Manager::victoryUpdate()
 {
-    for(int i = 0; i<movable.size();i++)
+    for(size_t i = 0; i<movable.size();i++)
     {
         std::vector<GObject> v = checkCollideVictory(movable[i]);
         if(!v.empty() && movable[i].getIndex() != 1)
@@ -178,7 +188,7 @@ void GO_Manager::victoryUpdate()
 bool GO_Manager::victoryGlobal()
 {
     bool victoire = true;
-    for(int i = 0; i<movable.size();i++)
+    for(size_t i = 0; i<movable.size();i++)
     { 
         if(movable[i].getIndex() == 0)
         {
@@ -187,4 +197,26 @@ bool GO_Manager::victoryGlobal()
         }
     } 
     return victoire;
+}
+
+void GO_Manager::empiler()
+{
+    histo_player.push(player->getPos());
+    histo_movable.push(movable);
+}
+
+void GO_Manager::depiler()
+{
+
+    if(!histo_player.empty())
+    {
+        player->setPos(histo_player.top().x, histo_player.top().y);
+        histo_player.pop();
+    }
+    if(!histo_movable.empty())
+    {
+        movable = histo_movable.top();
+        histo_movable.pop();
+    }
+
 }
