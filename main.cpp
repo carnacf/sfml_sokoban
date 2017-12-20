@@ -81,6 +81,7 @@ int main()
     int moves = 20;
     int rooms = 3;
     int doors = 1;
+    int cpt = 0;
     RandomGen randomGen;
     randomGen.init(time(0));
     Table<char> level = trySokoban(randomGen, levelSize, tries, boulders, moves, rooms, doors);
@@ -111,14 +112,14 @@ int main()
 	    printf("font not loaded\n");
 	}
 
-	Text _text;
-	_text.setFont(MyFont);
-	_text.setString("Victory !\n press R to restart\npress N to generate a new level");
-	_text.setCharacterSize(24);
-	_text.setColor(Color::Black);
-	FloatRect rect = _text.getLocalBounds();
-	_text.setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
-	_text.setPosition(Vector2f(window.getSize().x/2.0f, window.getSize().y/2.0f));
+	Text _text, _time_txt, _cpt_txt;
+	_text.setFont(MyFont);_time_txt.setFont(MyFont);_cpt_txt.setFont(MyFont);
+	_text.setCharacterSize(24);_time_txt.setCharacterSize(24);_cpt_txt.setCharacterSize(24);
+	_text.setColor(Color::Black);_time_txt.setColor(Color::Black);_cpt_txt.setColor(Color::Black);
+
+	_cpt_txt.setString(std::to_string(cpt) +" plays ");
+	FloatRect rect_cpt = _cpt_txt.getLocalBounds();
+	_cpt_txt.setPosition(Vector2f(window.getSize().x - rect_cpt.width, 0));
 
 	//Floor
 	Texture floor_text;
@@ -144,6 +145,9 @@ int main()
 	//Clock
 	Clock clock;
 	float timer = 0;
+	int seconds;
+	int minuts;
+	float globalTimer = 0;
 	float animTime = 0.5;
 
     while (window.isOpen())
@@ -152,7 +156,9 @@ int main()
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 		timer+=time;
-
+		globalTimer+=time;
+		seconds = (int)globalTimer%60;
+		minuts = floor(globalTimer / 60);
 		Event e;
 		if(manager.getPlayer()->isMoving() && timer>(animTime/manager.getPlayer()->numberOfSprites())){
 			
@@ -178,6 +184,7 @@ int main()
 				if(!(manager.getPlayer()->getDir().x == 0 && manager.getPlayer()->getDir().y == 0))
 				{
 					manager.moveForward();
+					cpt++;
 				}
 			}
 
@@ -190,11 +197,18 @@ int main()
     	manager.victoryUpdate();
 		window.draw(floor_sprite);
 		manager.drawAll(&window);
+		_time_txt.setString(std::to_string(minuts) +" : "+ std::to_string(seconds));
+		window.draw(_time_txt);
+		_cpt_txt.setString(std::to_string(cpt) +" plays ");
+		window.draw(_cpt_txt);
     	if(manager.victoryGlobal())
     	{
+			_text.setString("Victory !\nPress R to restart\nPress N to generate a new level");
+			FloatRect rect = _text.getLocalBounds();
+			_text.setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
+			_text.setPosition(Vector2f(window.getSize().x/2.0f, window.getSize().y/2.0f));
 			window.draw(_text);
     	}
-
 		window.display();
 	}
 
