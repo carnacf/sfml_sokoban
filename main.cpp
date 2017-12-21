@@ -11,6 +11,11 @@ using namespace sf;
 
 Table<char> trySokoban(RandomGen& randomGen, Vec2 levelSize, int numTries,
                 int numBoulders, int numMoves, int rooms, int doors) {
+	srand(time(0));
+	numBoulders = rand() % 4 + 3;
+	numMoves = 40;
+	rooms = rand() % 4 + 3;
+	doors = 1;
   int maxDepth = -1;
   for (int i = 0; i < numTries; ++i) {
     SokobanMaker sokoban(randomGen, levelSize, numBoulders, numMoves);
@@ -69,18 +74,22 @@ int main()
 {
 	//Generate level
 	int tries = 1000;
-    Vec2 levelSize(20,20);
-    int boulders = 4;
-    int moves = 20;
-    int rooms = 3;
-    int doors = 0;
+    Vec2 levelSize(25,25);
+    srand(time(0));
+    int boulders = rand() % 4 + 3;
+    int moves = 40;
+    int rooms = rand() % 4 + 3;
+    int doors = 1;
     int cpt = 0;
     RandomGen randomGen;
     randomGen.init(time(0));
     Table<char> level = trySokoban(randomGen, levelSize, tries, boulders, moves, rooms, doors);
 	srand(time(0));
 
-	RenderWindow window(VideoMode(20*40, 20*40), "Best Sokoban Ever !");
+	RenderWindow window(VideoMode(levelSize.x*40, levelSize.y*40), "Best Sokoban Ever !");
+	if(window.getSize().x > VideoMode::getDesktopMode().width || window.getSize().y > VideoMode::getDesktopMode().width)
+		window.setSize(Vector2u(window.getSize().x/2, window.getSize().y/2));
+
 	window.setFramerateLimit(60);
 	window.setKeyRepeatEnabled(false);
 
